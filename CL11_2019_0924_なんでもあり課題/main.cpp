@@ -50,7 +50,7 @@ void main(void)
 	HANDLE hStdout;
 	COORD* cp = NULL;
 
-	//標準出力za
+	//標準出力
 	hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
 
 	//フルスクリーンにする
