@@ -26,20 +26,28 @@
 // 構造体定義
 // ---------------------------------------------------------------------------
 typedef struct{//アイテム構造体
-	char item_name[10];				//アイテム名配列
-	int damage_quantity = 0;		//武器のダメージ量
-	int recovery_quantity;			//回復アイテムの回復量
+	char ItemName[10];				//アイテム名配列
+	int DamageQuantity = 0;		//武器のダメージ量
+	int RecoveryQuantity;			//回復アイテムの回復量
 }ITEMS;
+
+typedef struct{//変数構造体
+	int	ChoicesNumFun = 0;
+	int JudgmentFun = 0;
+	int EnemyDestroyingCountFun = 0;
+	int CrocodileDestroyingCountFun = 0;
+}VARIABLE;
 // ---------------------------------------------------------------------------
 // プロトタイプ宣言
 // ---------------------------------------------------------------------------
 void crocodile(void);
 void snake(void);
 void tiger(void);
+void BattleScene(void);
 // ---------------------------------------------------------------------------
 // グローバル変数
 // ---------------------------------------------------------------------------
-
+VARIABLE var;
 
 // ---------------------------------------------------------------------------
 // 関数名:	void main( void )
@@ -130,16 +138,16 @@ void main(void)
 
 	};
 
+	ITEMS data[5];
+	//VARIABLE var;
+
 	char PlayerCoordinateX = 100, PlayerCoordinateY = 50;
 	char KeyInput;
-	int	ChoicesNum = 0;
 	int ClearDecision = 0;
 	int EvolutionCount = 0;
 	int MonkeyCount = 1;
-	int EnemyDestroyingCount = 0;
-	int CrocodileDestroyingCount = 0;
-	int Judgment = 0;
 	int Years = 1000;
+
 
 	//標準出力用バッファ
 	char* outbuf = (char*)calloc(120 * 70, sizeof(char));
@@ -148,20 +156,26 @@ void main(void)
 	//マップ描画処理
 	do
 	{
+		if (Years == 200)
+		{
+			ClearDecision = 1;
+		}
+
 		system("cls");
 		setbuf(stdout, outbuf);		//バッファを設定
 
 		//進化処理
-		if (EnemyDestroyingCount % 2 == 0 && EnemyDestroyingCount != 0)
+		if (var.EnemyDestroyingCountFun % 2 == 0 && var.EnemyDestroyingCountFun != 0)
 		{
 			 Years -= 100;
 			printf("\n種族が進化しました！\n");
 			printf("100万年進化し%d万年前になりました！\n", Years);
-			EnemyDestroyingCount = 0;
+			var.EnemyDestroyingCountFun = 0;
 		}
 
-		printf("現在の猿の数：%d		ワニ討伐数:%d		年数：%d万年前\n",MonkeyCount,CrocodileDestroyingCount,Years);
+		printf("現在の猿の数：%d		ワニ討伐数:%d		年数：%d万年前\n",MonkeyCount, var.CrocodileDestroyingCountFun, Years);
 
+		//MAP描画
 		for (int map_Y = 0; map_Y < Y_MAX; map_Y++)
 		{
 			for (int map_X = 0; map_X < X_MAX; map_X++)
@@ -251,62 +265,12 @@ void main(void)
 		//プレイヤー移動条件処理
 		//wキーで上へ移動、aキーで左に移動、sキーで下に移動、dキーで右に移動
 		//移動先がブロック（==4）だった場合衝突判定
-		if (KeyInput == 'w' &&
-			map[PlayerCoordinateY - 1][PlayerCoordinateX] != 8 &&
-			map[PlayerCoordinateY - 1][PlayerCoordinateX] != 9 &&
-			map[PlayerCoordinateY - 1][PlayerCoordinateX] != 11 &&
-			map[PlayerCoordinateY - 1][PlayerCoordinateX] != 13)
+		if (KeyInput == 'w' && map[PlayerCoordinateY - 1][PlayerCoordinateX] != 8 && map[PlayerCoordinateY - 1][PlayerCoordinateX] != 9 && map[PlayerCoordinateY - 1][PlayerCoordinateX] != 11 && map[PlayerCoordinateY - 1][PlayerCoordinateX] != 13)
 		{
 			//戦闘処理
 			if (map[PlayerCoordinateY - 1][PlayerCoordinateX] == 1)
 			{
-				system("cls");
-				crocodile();
-				printf("ワニが現れた！\n");
-				printf("1:攻撃　2：逃げる＞");
-
-				//数値が正しく入力されているか
-				do
-				{
-					rewind(stdin);
-					scanf("%d",&ChoicesNum);
-
-					if (ChoicesNum == 1)
-					{
-						Judgment = 1;
-					}
-					else if (ChoicesNum == 2)
-					{
-						Judgment = 2;
-					}
-					else
-					{
-						printf("数値を正しく入力してね！\n");
-						printf("1:攻撃　2：逃げる＞");
-					}
-				} while (Judgment != 1 && Judgment != 2);
-
-				if (Judgment == 1)				//攻撃を選択した場合
-				{
-					{
-						system("cls");
-						crocodile();
-						printf("ワニを倒した！\n");
-						EnemyDestroyingCount++;
-						CrocodileDestroyingCount++;
-						ChoicesNum = 0;
-						Judgment = 0;
-					}
-				}
-				else if (Judgment == 2)					//逃げるを選択した場合
-				{
-					system("cls");
-					printf("ワニから逃げた！\n");
-					ChoicesNum = 0;
-					Judgment = 0;
-				}
-				rewind(stdin);
-				getchar();
+				BattleScene();
 			}
 			PlayerCoordinateY--;
 		}
@@ -314,53 +278,7 @@ void main(void)
 		{
 			if (map[PlayerCoordinateY][PlayerCoordinateX - 1] == 1)
 			{
-				system("cls");
-				crocodile();
-				printf("ワニが現れた！\n");
-				printf("1:攻撃　2：逃げる＞");
-
-				//数値が正しく入力されているか
-				do
-				{
-					rewind(stdin);
-					scanf("%d", &ChoicesNum);
-
-					if (ChoicesNum == 1)
-					{
-						Judgment = 1;
-					}
-					else if (ChoicesNum == 2)
-					{
-						Judgment = 2;
-					}
-					else
-					{
-						printf("数値を正しく入力してね！\n");
-						printf("1:攻撃　2：逃げる＞");
-					}
-				} while (Judgment != 1 && Judgment != 2);
-
-				if (Judgment == 1)				//攻撃を選択した場合
-				{
-					{
-						system("cls");
-						crocodile();
-						printf("ワニを倒した！\n");
-						EnemyDestroyingCount++;
-						CrocodileDestroyingCount++;
-						ChoicesNum = 0;
-						Judgment = 0;
-					}
-				}
-				else if (Judgment == 2)					//逃げるを選択した場合
-				{
-					system("cls");
-					printf("ワニから逃げた！\n");
-					ChoicesNum = 0;
-					Judgment = 0;
-				}
-				rewind(stdin);
-				getchar();
+				BattleScene();
 			}
 			PlayerCoordinateX--;
 		}
@@ -369,53 +287,7 @@ void main(void)
 			//戦闘処理
 			if (map[PlayerCoordinateY + 1][PlayerCoordinateX] == 1)
 			{
-				system("cls");
-				crocodile();
-				printf("ワニが現れた！\n");
-				printf("1:攻撃　2：逃げる＞");
-
-				//数値が正しく入力されているか
-				do
-				{
-					rewind(stdin);
-					scanf("%d", &ChoicesNum);
-
-					if (ChoicesNum == 1)
-					{
-						Judgment = 1;
-					}
-					else if (ChoicesNum == 2)
-					{
-						Judgment = 2;
-					}
-					else
-					{
-						printf("数値を正しく入力してね！\n");
-						printf("1:攻撃　2：逃げる＞");
-					}
-				} while (Judgment != 1 && Judgment != 2);
-
-				if (Judgment == 1)				//攻撃を選択した場合
-				{
-					{
-						system("cls");
-						crocodile();
-						printf("ワニを倒した！\n");
-						EnemyDestroyingCount++;
-						CrocodileDestroyingCount++;
-						ChoicesNum = 0;
-						Judgment = 0;
-					}
-				}
-				else if (Judgment == 2)					//逃げるを選択した場合
-				{
-					system("cls");
-					printf("ワニから逃げた！\n");
-					ChoicesNum = 0;
-					Judgment = 0;
-				}
-				rewind(stdin);
-				getchar();
+				BattleScene();
 			}
 			PlayerCoordinateY++;
 		}
@@ -424,53 +296,7 @@ void main(void)
 			//戦闘処理
 			if (map[PlayerCoordinateY][PlayerCoordinateX + 1] == 1)
 			{
-				system("cls");
-				crocodile();
-				printf("ワニが現れた！\n");
-				printf("1:攻撃　2：逃げる＞");
-
-				//数値が正しく入力されているか
-				do
-				{
-					rewind(stdin);
-					scanf("%d", &ChoicesNum);
-
-					if (ChoicesNum == 1)
-					{
-						Judgment = 1;
-					}
-					else if (ChoicesNum == 2)
-					{
-						Judgment = 2;
-					}
-					else
-					{
-						printf("数値を正しく入力してね！\n");
-						printf("1:攻撃　2：逃げる＞");
-					}
-				} while (Judgment != 1 && Judgment != 2);
-
-				if (Judgment == 1)				//攻撃を選択した場合
-				{
-					{
-						system("cls");
-						crocodile();
-						printf("ワニを倒した！\n");
-						EnemyDestroyingCount++;
-						CrocodileDestroyingCount++;
-						ChoicesNum = 0;
-						Judgment = 0;
-					}
-				}
-				else if (Judgment == 2)					//逃げるを選択した場合
-				{
-					system("cls");
-					printf("ワニから逃げた！\n");
-					ChoicesNum = 0;
-					Judgment = 0;
-				}
-				rewind(stdin);
-				getchar();
+				BattleScene();
 			}
 			PlayerCoordinateX++;
 		}
@@ -486,7 +312,59 @@ void main(void)
 	getchar();
 }
 
-//ワニアスキーアート
+void BattleScene(void)
+{
+	//VARIABLE var;
+
+	system("cls");
+	crocodile();
+	printf("ワニが現れた！\n");
+	printf("1:攻撃　2：逃げる＞");
+
+	//数値が正しく入力されているか
+	do
+	{
+		rewind(stdin);
+		scanf("%d", &var.ChoicesNumFun);
+
+		if (var.ChoicesNumFun == 1)
+		{
+			var.JudgmentFun = 1;
+		}
+		else if (var.ChoicesNumFun == 2)
+		{
+			var.JudgmentFun = 2;
+		}
+		else
+		{
+			printf("数値を正しく入力してね！\n");
+			printf("1:攻撃　2：逃げる＞");
+		}
+	} while (var.JudgmentFun != 1 && var.JudgmentFun != 2);
+
+	if (var.JudgmentFun == 1)				//攻撃を選択した場合
+	{
+		{
+			system("cls");
+			crocodile();
+			printf("ワニを倒した！\n");
+			var.EnemyDestroyingCountFun += 1;
+			var.CrocodileDestroyingCountFun += 1;
+			var.ChoicesNumFun = 0;
+			var.JudgmentFun = 0;
+		}
+	}
+	else if (var.JudgmentFun == 2)					//逃げるを選択した場合
+	{
+		system("cls");
+		printf("ワニから逃げた！\n");
+		var.ChoicesNumFun = 0;
+		var.JudgmentFun = 0;
+	}
+	rewind(stdin);
+	getchar();
+}
+
 void crocodile(void)
 {
 	printf("　　　　　　　　　 ,. ､__,.--､\n");
