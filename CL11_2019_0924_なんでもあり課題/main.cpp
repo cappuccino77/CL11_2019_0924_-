@@ -28,15 +28,8 @@
 typedef struct{//アイテム構造体
 	char ItemName[10];				//アイテム名配列
 	int DamageQuantity = 0;		//武器のダメージ量
-	int RecoveryQuantity;			//回復アイテムの回復量
+	int RecoveryQuantity = 0;			//回復アイテムの回復量
 }ITEMS;
-
-typedef struct{//変数構造体
-	int	ChoicesNumFun = 0;
-	int JudgmentFun = 0;
-	int EnemyDestroyingCountFun = 0;
-	int CrocodileDestroyingCountFun = 0;
-}VARIABLE;
 // ---------------------------------------------------------------------------
 // プロトタイプ宣言
 // ---------------------------------------------------------------------------
@@ -47,8 +40,10 @@ void BattleScene(void);
 // ---------------------------------------------------------------------------
 // グローバル変数
 // ---------------------------------------------------------------------------
-VARIABLE var;
-
+int	ChoicesNum = 0;
+int Judgment = 0;
+int EnemyDestroyingCount = 0;
+int CrocodileDestroyingCount = 0;
 // ---------------------------------------------------------------------------
 // 関数名:	void main( void )
 // 説明:	メイン関数
@@ -139,7 +134,6 @@ void main(void)
 	};
 
 	ITEMS data[5];
-	//VARIABLE var;
 
 	char PlayerCoordinateX = 100, PlayerCoordinateY = 50;
 	char KeyInput;
@@ -147,7 +141,6 @@ void main(void)
 	int EvolutionCount = 0;
 	int MonkeyCount = 1;
 	int Years = 1000;
-
 
 	//標準出力用バッファ
 	char* outbuf = (char*)calloc(120 * 70, sizeof(char));
@@ -165,15 +158,15 @@ void main(void)
 		setbuf(stdout, outbuf);		//バッファを設定
 
 		//進化処理
-		if (var.EnemyDestroyingCountFun % 2 == 0 && var.EnemyDestroyingCountFun != 0)
+		if (EnemyDestroyingCount % 2 == 0 && EnemyDestroyingCount != 0)
 		{
 			 Years -= 100;
-			printf("\n種族が進化しました！\n");
+			printf("種族が進化しました！\n");
 			printf("100万年進化し%d万年前になりました！\n", Years);
-			var.EnemyDestroyingCountFun = 0;
+			EnemyDestroyingCount = 0;
 		}
 
-		printf("現在の猿の数：%d		ワニ討伐数:%d		年数：%d万年前\n",MonkeyCount, var.CrocodileDestroyingCountFun, Years);
+		printf("現在の猿の数：%d		ワニ討伐数:%d		年数：%d万年前\n",MonkeyCount, CrocodileDestroyingCount, Years);
 
 		//MAP描画
 		for (int map_Y = 0; map_Y < Y_MAX; map_Y++)
@@ -259,7 +252,7 @@ void main(void)
 		}
 		else
 		{
-			KeyInput = _getch();		//キー入力　　入力されたと同時に出力
+			KeyInput = _getch();	//キー入力　　入力されたと同時に出力
 		}
 
 		//プレイヤー移動条件処理
@@ -314,8 +307,6 @@ void main(void)
 
 void BattleScene(void)
 {
-	//VARIABLE var;
-
 	system("cls");
 	crocodile();
 	printf("ワニが現れた！\n");
@@ -325,44 +316,43 @@ void BattleScene(void)
 	do
 	{
 		rewind(stdin);
-		scanf("%d", &var.ChoicesNumFun);
+		scanf("%d", &ChoicesNum);
 
-		if (var.ChoicesNumFun == 1)
+		if (ChoicesNum == 1)
 		{
-			var.JudgmentFun = 1;
+			Judgment = 1;
 		}
-		else if (var.ChoicesNumFun == 2)
+		else if (ChoicesNum == 2)
 		{
-			var.JudgmentFun = 2;
+			Judgment = 2;
 		}
 		else
 		{
 			printf("数値を正しく入力してね！\n");
 			printf("1:攻撃　2：逃げる＞");
 		}
-	} while (var.JudgmentFun != 1 && var.JudgmentFun != 2);
+	} while (Judgment != 1 && Judgment != 2);
 
-	if (var.JudgmentFun == 1)				//攻撃を選択した場合
+	if (Judgment == 1)				//攻撃を選択した場合
 	{
-		{
-			system("cls");
-			crocodile();
-			printf("ワニを倒した！\n");
-			var.EnemyDestroyingCountFun += 1;
-			var.CrocodileDestroyingCountFun += 1;
-			var.ChoicesNumFun = 0;
-			var.JudgmentFun = 0;
-		}
+		system("cls");
+		crocodile();
+		printf("ワニを倒した！\n");
+		EnemyDestroyingCount++;
+		CrocodileDestroyingCount++;
+		ChoicesNum = 0;
+		Judgment = 0;
 	}
-	else if (var.JudgmentFun == 2)					//逃げるを選択した場合
+	else if (Judgment == 2)					//逃げるを選択した場合
 	{
 		system("cls");
 		printf("ワニから逃げた！\n");
-		var.ChoicesNumFun = 0;
-		var.JudgmentFun = 0;
+		ChoicesNum = 0;
+		Judgment = 0;
 	}
 	rewind(stdin);
 	getchar();
+
 }
 
 void crocodile(void)
