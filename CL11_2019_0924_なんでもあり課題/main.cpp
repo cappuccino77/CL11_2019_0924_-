@@ -51,7 +51,7 @@ int CrocodileDestroyingCount = 0;
 void main(void)
 {
 	HANDLE hStdout;
-	COORD* cp = NULL;
+	COORD* cp = NULL++;
 
 	//ïWèÄèoóÕ
 	hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
